@@ -1,0 +1,18 @@
+cabal-version:      3.0
+name:               neural-network
+version:            0.1.0.0
+build-type:         Simple
+
+library
+    exposed-modules:  NN, BP
+    hs-source-dirs:   .
+
+executable ff
+    main-is:          ff.hs
+    build-depends:    base >=4.20.0.0, neural-network
+    hs-source-dirs:   .
+
+executable testBP
+    main-is:          testBP.hs
+    build-depends:    base >=4.20.0.0, neural-network
+    hs-source-dirs:   . 
