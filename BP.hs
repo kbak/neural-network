@@ -19,6 +19,10 @@ zipWithLengthCheck f xs ys
 outputGradient :: (Floating a) => Vector a -> Vector a -> Vector a
 outputGradient = zipWithLengthCheck (-)
 
+-- | Calculate the element-wise product of the error signal (delta) and the activation derivative of the outputs.
+calculateActivationGradient :: (Floating a, Num a, Ord a) => Vector a -> Vector a -> Vector a
+calculateActivationGradient delta outputs = zipWithLengthCheck (*) delta (map reluDerivative outputs)
+
 -- | Calculate the gradient of a layer's weights and biases.
 -- | The gradient tells how sensitive the activation/cost function is to each weight and bias.
 -- | Output of the activation function is a neuron, i.e., the input to the next layer.
@@ -28,7 +32,7 @@ outputGradient = zipWithLengthCheck (-)
 layerGradient :: (Floating a, Num a, Ord a) => Vector a -> Vector a -> Vector a -> Layer a
 layerGradient inputs delta outputs = (weightGradients, activationGradients)
     where
-    activationGradients = zipWithLengthCheck (*) delta (map reluDerivative outputs)
+    activationGradients = calculateActivationGradient delta outputs
     -- weightGrads[i][j] = inputs[i] * activationGradients[j]
     weightGradients = [[inp * d | d <- activationGradients] | inp <- inputs]
 
@@ -51,7 +55,7 @@ backpropagate input target network =
       -- Step function for scanr: Calculates delta_i using delta_{i+1}
       deltaStep (currentOutput, (nextWeights, _)) nextDelta =
         let weightedDelta = head $ matMul [nextDelta] (transpose nextWeights)
-            currentDelta = zipWith (*) weightedDelta (map reluDerivative currentOutput)
+            currentDelta = calculateActivationGradient weightedDelta currentOutput
         in currentDelta
 
       -- Compute all deltas [delta_0, ..., delta_{N-2}, deltaL]
