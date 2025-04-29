@@ -55,8 +55,7 @@ backpropagate input target network =
       -- Step function for scanr: Calculates delta_i using delta_{i+1}
       deltaStep (currentOutput, (nextWeights, _)) nextDelta =
         let weightedDelta = head $ matMul [nextDelta] (transpose nextWeights)
-            currentDelta = calculateActivationGradient weightedDelta currentOutput
-        in currentDelta
+        in calculateActivationGradient weightedDelta currentOutput
 
       -- Compute all deltas [delta_0, ..., delta_{N-2}, deltaL]
       -- scanr processes from right-to-left, accumulating results
